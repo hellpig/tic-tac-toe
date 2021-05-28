@@ -140,7 +140,7 @@ spotsFree = [x for x in range(9) if start[x]==0]
 
 # due to symmetry, I prevent certain moves from occurring on some boards
 # If altering start list for choice 1, 2, 3, 7, 8, or 12,
-# be sure that the above iMax = 4 covers all necessary situations.
+#   be sure that iMaxStart covers all necessary situations.
 if choice in (1,2,3,7,8,12):
   iMaxStart = 4
 else:
