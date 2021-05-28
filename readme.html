@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<style type="text/css">
+p{font-family:monospace;white-space:pre-wrap}
+</style>
+<title>readme.html</title>
+</head>
+<body>
+<p>
+_____________
+my goal
+¯¯¯¯¯¯¯¯¯¯¯¯¯
+I output all winning games to the 12 ways to start a Tic-tac-toe game. Neither player is allowed to ignore an immediate win, and, after checking for a win, neither player is allowed to ignore blocking an immediate win. I prevent the most obvious symmetric solutions from appearing more than once by preventing "repeated" boards in the first three moves. Here are the 12 ways to start a Tic-tac-toe game...
+  (1) middle → side
+  (2) middle → corner
+  (3) corner → middle
+  (4) corner → adjacent side
+  (5) corner → opposite side
+  (6) corner → adjacent corner
+  (7) corner → opposite corner
+  (8) side → middle
+  (9) side → adjacent corner
+  (10) side → opposite corner
+  (11) side → adjacent side
+  (12) side → opposite side
+
+A game of Tic-tac-toe is short enough to simply remember what to do for various cases. You can verify by running the code that...
+ • if Player 1 moves into the center, Player 2 should move into a corner (else Player 1 can force a win), then Player 1 should choose the opposite corner
+ • if Player 1 moves into the corner, Player 2 should choose center (else Player 1 can force a win), then Player 1 should choose the opposite corner
+
+However, these two start moves get boring very quickly, so the main goal is to explore the more complex and interesting situation when Player 1 begins on the side. If you're Player 1, I recommend sometimes starting on the side because your opponent may not know what to do!
+
+See my comments at the top of the code to get started!
+
+
+_____________
+more info
+¯¯¯¯¯¯¯¯¯¯¯¯¯
+ • If you find bugs or have questions, leave me a message at www.BradleyKnockel.com
+ • This code is under the MIT license, so you can mostly do what you want with it (just make sure you give credit to me, Bradley Knockel)
+
+</p>
+</body>
+</html>
