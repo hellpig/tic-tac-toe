@@ -18,8 +18,8 @@
 #   1 is for the first player
 #   2 is for the second player (temporarily called "4" in the code)
 
-start = [2,2,1,
-         1,0,0,
+start = [0,0,0,
+         1,0,2,
          0,1,0]
 
 
@@ -56,7 +56,8 @@ spotsFree = [x for x in range(9) if start[x]==0]
 
 
 # check start[] for obvious situations or moves
-sums = [sum([M[x] for x in indices[y]]) for y in range(8)]  # sums[i] is the sum of indices[i] of M
+# sums[i] is the sum of indices[i] of M
+sums = [sum([M[x] for x in indices[y]]) for y in range(8)]
 if 3 in sums or 12 in sums:
   print("  looks like the game is over, right?")
   exit()
@@ -65,46 +66,26 @@ if 2 in sums or 8 in sums:
   exit()
 
 
-# Returns...
-#  -1 if other player can force a win with just one move 
-#   0 if other player can force a win with multiple moves
-#   1 if other player wins
-#   2 if you win
-#   3 if you can force a win in multiple moves
-#   4 if you will force a win
-# A player, in general, forces a win if all future moves lead to a win,
-#   and I think the function below checks for MOST possible instances of this.
-#   I have experimentally verified that I need to compare different history[] lists.
-#   As the code currently is, the returned value is only approximate.
-def analyzeHistory(history):
 
-  length = len(history)
 
-  if length & 1:   # if length is odd, you won!
-    if all(h==9 for h in history[1::2]):  # you can force a win
-      if all(h==9 for h in history[2::2]):
-        return 4
-      return 3
-    return 2
+# Recursive function to populate results[]
+# This function returns...
+#      2 for being able to force a win
+#      1 for being able to win if opponent isn't the best
+#      0 for pure draws
+#     -1 for being opponent being able to force a loss
+# These values go into results[] when step is 1
+def analyzeMoves( M, spotsFree, step ):
+  global results, counter
+
+  # counter is for indexing results[]
+  if step == 1:
+    counter += 1
+
+  if step & 1:   # if step is odd
+    oppenentTurn = True    # note that step starts at 0
   else:
-    if all(h==9 for h in history[2::2]):
-      if all(h==9 for h in history[3::2]):
-        return -1
-      return 0
-    return 1
-
-
-
-
-# Grows as analyzeMoves() is recursively called
-# Values come in pairs: [a,a,b,b,c,c,...]
-results = []
-
-
-
-# recursive function
-def analyzeMoves( M, spotsFree, history ):
-  global results
+    oppenentTurn = False
 
   if len(spotsFree) & 1:  # if len(spotsFree) is odd
     newValue = 1    # place a 1 instead of a 4 on the tic-tac-toe board
@@ -125,11 +106,25 @@ def analyzeMoves( M, spotsFree, history ):
 
       sums = [sum([M[x] for x in indices[y]]) for y in range(8)]
       if blockCondition in sums:  # win if there is another thing needing to be blocked!
-          results += [history[0], analyzeHistory(history)]
+
+          if oppenentTurn:
+            v = 2  # won!
+          else:
+            v = -1  # lost
+
+          if step == 1:
+            results[counter] = v
+          return v
+
       else:
-          analyzeMoves( M, spotsFree, history+[9] )  # 9 means block
+          v = analyzeMoves( M, spotsFree, step+1 )
+          if step == 1:
+            results[counter] = v
+          return v
 
   else:
+
+      list = [None]*len(spotsFree)
       for i in range(len(spotsFree)):
 
           # I must make copies because you can't pass by value in Python
@@ -140,26 +135,55 @@ def analyzeMoves( M, spotsFree, history ):
           M2[ii] = newValue  #add piece to new board
           del spotsFree2[i]  #update the new list of available moves
 
-          analyzeMoves( M2, spotsFree2, history+[ii] )
+          list[i] = analyzeMoves( M2, spotsFree2, step+1 )
+
+      # process list[] to find v; that is, combine multiple outputs of analyzeMoves()
+      if len(list)==0:
+
+          v = 0   # draw
+
+      elif oppenentTurn:
+          
+          if any(i==-1 for i in list):
+            v = -1
+          elif any(i==1 for i in list) or (any(i==0 for i in list) and any(i==2 for i in list)):
+            v = 1
+          else:
+            v = list[0]    # either all of list[] is 2 or all of list is 0
+
+      else:
+
+          # choose the highest situation in the list
+          v = max(list)
+
+      # take care of results[] and return
+      if step == 1:
+        results[counter] = v
+      return v
+
 
 
 
 # do it!
-analyzeMoves( M, spotsFree[:], [] )
+results = [0]*len(spotsFree)
+counter = -1
+analyzeMoves( M, spotsFree[:], 0 )
 
 
-# analyze results[]
-counter = 0
-for i in spotsFree:
 
-  list = []
-  while counter < len(results) and results[counter]==i:
-    counter += 1
-    list += [results[counter]]
-    counter += 1
+# print results[]
+for location, result in zip(spotsFree,results):
 
-  if len(list)==0:
-    print( '  location', i+1, 'will lead to a draw' )
+  if result==-1:
+    print( '  location', location+1, 'will allow your opponent to force a win' )
+  elif result==0:
+    print( '  location', location+1, 'will lead to a draw' )
+  elif result==1:
+    print( '  location', location+1, 'might allow you to force a win' )
+  elif result==2:
+    print( '  location', location+1, 'will allow you to force a win' )
+
+
   elif all(l==1 or l==2 for l in list):
     string = 'has '
     if any(l==1 for l in list):

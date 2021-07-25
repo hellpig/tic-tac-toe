@@ -12,8 +12,6 @@ p{font-family:monospace;white-space:pre-wrap}
 
 There are three standalone files that can be run using Python 3 in a terminal (on Windows, in the Command Prompt).
 
-Currently, there is a small bug in the analyzeHistory() function in the last 2 of the 3 files. See the function's comments to see what the problem is. I'll try to fix it eventually!
-
 _____________
 my goal for TicTacToe.py
 ¯¯¯¯¯¯¯¯¯¯¯¯¯
@@ -55,13 +53,12 @@ my goal for TicTacToe_AI.py
 ¯¯¯¯¯¯¯¯¯¯¯¯¯
 Play Tic-tac-toe with the computer, but the computer will never let you win.
 
-My goal is to make the experience as interesting as possible, so the computer will not necessarily greedily try to win. That is, the computer will not necessarily keep trying the best moves each game. Depending on how the Greedy variable is set, you will get different experiences...
- • Greedy = 0: computer prevents you from having the opportunity to force it to lose
- • Greedy = 1: computer will also avoid situations that satisfy both that it can lose and that the human cannot win
- • Greedy = 2: computer will also avoid situations that are a draw
- • Greedy = 3: computer will always favor situations that guarantee that it can win
+My goal is to make the experience as interesting as possible, so the computer will not necessarily greedily try to win. That is, the computer will not necessarily keep trying the best moves each game. Depending on how the Greediness variable is set, you will get different experiences...
+ • Greediness = 0: computer prevents you from having the opportunity to force it to lose
+ • Greediness = 1: computer will also avoid situations that are a draw
+ • Greediness = 2: computer will always favor situations that guarantee that it can win
 
-I suppose you could set Greedy to -1 to have the computer do more random moves, while still always completing any almost-complete line or blocking your almost-complete line.
+I suppose you could set Greediness to -1 to have the computer do more random moves, while still always completing any almost-complete line or blocking your almost-complete line.
 
 If the computer is not avoiding a couple types of situations, to keep gameplay interesting, it will randomly choose between the allowed locations. If the computer is avoiding a couple types of situations, it will avoid the worse situation more.
 

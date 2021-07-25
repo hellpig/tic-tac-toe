@@ -20,12 +20,10 @@
 # My goal is to make the experience as interesting as possible,
 # so the computer will not necessarily greedily try to win.
 # That is, the computer will not necessarily keep trying the best moves each game.
-# Depending on how the Greedy variable is set, you will get different experiences...
-#   Greedy = 0: computer prevents you from having the opportunity to force it to lose
-#   Greedy = 1: computer will also avoid situations that satisfy
-#               both that it can lose and that the human cannot win
-#   Greedy = 2: computer will also avoid situations that are a draw
-#   Greedy = 3: computer will always favor situations that guarantee that it can win
+# Depending on how the Greediness variable is set, you will get different experiences...
+#   Greediness = 0: computer prevents you from having the opportunity to force it to lose
+#   Greediness = 1: computer will also avoid situations that are a draw
+#   Greediness = 2: computer will always favor situations that guarantee that it can win
 #
 # If the computer is not avoiding a couple types of situations,
 # to keep gameplay interesting,
@@ -33,11 +31,11 @@
 # If the computer is avoiding a couple types of situations,
 # it will avoid the worse situation more.
 #
-# I suppose you could set Greedy to -1 to have the computer do even more random moves,
+# I suppose you could set Greediness to -1 to have the computer do even more random moves,
 # while still always completing any almost-complete line or blocking your
 # almost-complete line.
 
-Greedy = 0
+Greediness = 0
 
 
 
@@ -64,41 +62,27 @@ def myPrint(list):
 
 
 
-# Returns...
-#  -1 if other player can force a win with just one move 
-#   0 if other player can force a win with multiple moves
-#   1 if other player wins
-#   2 if you win
-#   3 if you can force a win in multiple moves
-#   4 if you will force a win
-# A player, in general, forces a win if all future moves lead to a win,
-#   and I think the function below checks for MOST possible instances of this.
-#   I have experimentally verified that I need to compare different history[] lists.
-#   As the code currently is, the returned value is only approximate.
-#   Because of this, you need Greedy==1 to make the AI unbeatable.
-def analyzeHistory(history):
 
-  length = len(history)
 
-  if length & 1:   # if length is odd, you won!
-    if all(h==9 for h in history[1::2]):  # you can force a win
-      if all(h==9 for h in history[2::2]):
-        return 4
-      return 3
-    return 2
+
+# Recursive function to populate results[]
+# This function returns...
+#      2 for being able to force a win
+#      1 for being able to win if opponent isn't the best
+#      0 for pure draws
+#     -1 for being opponent being able to force a loss
+# These values go into results[] when step is 1
+def analyzeMoves( M, spotsFree, step ):
+  global results, counter
+
+  # counter is for indexing results[]
+  if step == 1:
+    counter += 1
+
+  if step & 1:   # if step is odd
+    oppenentTurn = True    # note that step starts at 0
   else:
-    if all(h==9 for h in history[2::2]):
-      if all(h==9 for h in history[3::2]):
-        return -1
-      return 0
-    return 1
-
-
-
-
-# recursive function
-def analyzeMoves( M, spotsFree, history ):
-  global results
+    oppenentTurn = False
 
   if len(spotsFree) & 1:  # if len(spotsFree) is odd
     newValue = 1    # place a 1 instead of a 4 on the tic-tac-toe board
@@ -119,11 +103,25 @@ def analyzeMoves( M, spotsFree, history ):
 
       sums = [sum([M[x] for x in indices[y]]) for y in range(8)]
       if blockCondition in sums:  # win if there is another thing needing to be blocked!
-          results += [history[0], analyzeHistory(history)]
+
+          if oppenentTurn:
+            v = 2  # won!
+          else:
+            v = -1  # lost
+
+          if step == 1:
+            results[counter] = v
+          return v
+
       else:
-          analyzeMoves( M, spotsFree, history+[9] )  # 9 means block
+          v = analyzeMoves( M, spotsFree, step+1 )
+          if step == 1:
+            results[counter] = v
+          return v
 
   else:
+
+      list = [None]*len(spotsFree)
       for i in range(len(spotsFree)):
 
           # I must make copies because you can't pass by value in Python
@@ -134,11 +132,35 @@ def analyzeMoves( M, spotsFree, history ):
           M2[ii] = newValue  #add piece to new board
           del spotsFree2[i]  #update the new list of available moves
 
-          analyzeMoves( M2, spotsFree2, history+[ii] )
+          list[i] = analyzeMoves( M2, spotsFree2, step+1 )
+
+      # process list[] to find v; that is, combine multiple outputs of analyzeMoves()
+      if len(list)==0:
+
+          v = 0   # draw
+
+      elif oppenentTurn:
+          
+          if any(i==-1 for i in list):
+            v = -1
+          elif any(i==1 for i in list) or (any(i==0 for i in list) and any(i==2 for i in list)):
+            v = 1
+          else:
+            v = list[0]    # either all of list[] is 2 or all of list is 0
+
+      else:
+
+          # choose the highest situation in the list
+          v = max(list)
+
+      # take care of results[] and return
+      if step == 1:
+        results[counter] = v
+      return v
 
 
 
-human = int(input("  Do you want to be player 1 or 2? "))
+human = int(input("  Do you want to be player 1 or 2? Enter 1 or 2: "))
 
 if human!=1 and human!=2:
   print("  error: choose 1 or 2")
@@ -239,53 +261,18 @@ while True:
 
 
 
-  # Grows as analyzeMoves() is recursively called
-  # Values come in pairs: [a,a,b,b,c,c,...]
-  results = []
-
-
-  # do it!
-  analyzeMoves( M, spotsFree[:], [] )
-
-
-  # Analyze results[] to create resultsAnalyzed[] of length len(spotsFree),
-  # where resultsAnalyzed corresponds to the Greedy level and goes from -1 to 3
-  counter = 0
-  resultsAnalyzed = [-1]*len(spotsFree)
-  for j,i in enumerate(spotsFree):   # j is index; i is spotsFree[j]
-
-    list = []
-    while counter < len(results) and results[counter]==i:
-      counter += 1
-      list += [results[counter]]
-      counter += 1
-
-    if len(list)==0:
-      resultsAnalyzed[j] = 1
-    elif all(l==1 or l==2 for l in list):
-      if all(l==1 for l in list):
-        resultsAnalyzed[j] = 0
-      else:
-        resultsAnalyzed[j] = 2
-    elif any(l==4 for l in list):
-      resultsAnalyzed[j] = 3
-      if len(list) != 1:
-        print('huh!')
-    elif any(l==-1 for l in list):
-      resultsAnalyzed[j] = -1
-    elif any(l==0 for l in list):
-      resultsAnalyzed[j] = -1
-    elif any(l==3 for l in list):
-      resultsAnalyzed[j] = 3
-    else:
-      print('whoa!')
+  # analyze puzzle to create results[]
+  results = [0]*len(spotsFree)
+  counter = -1
+  analyzeMoves( M, spotsFree[:], 0 )
+  #print(results)
 
 
   # make the computer's move
   list = []
-  cutoff = Greedy
+  cutoff = Greediness
   while len(list) == 0:
-    list = [i for j,i in enumerate(spotsFree) if resultsAnalyzed[j] >= cutoff]
+    list = [i for j,i in enumerate(spotsFree) if results[j] >= cutoff]
     cutoff -= 1
   ind = list[random.randint(0, len(list)-1)]
   M[ind] = computer
