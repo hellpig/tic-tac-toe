@@ -39,7 +39,7 @@
 
 
 ## set this!
-choice = 3
+choice = 4
 
 
 
@@ -124,7 +124,7 @@ print('\n\n')
 
 
 # 8 rows of this are for the...
-#           first 3 columns,          then the first 3 rows,     then the 2 diagonals
+#          first 3 columns,           then the first 3 rows,     then the 2 diagonals
 indices = ((0,3,6), (1,4,7), (2,5,8), (0,1,2), (3,4,5), (6,7,8), (0,4,8), (6,4,2))
 
 
@@ -175,7 +175,7 @@ def searchForWins( M, spotsFree, iMax, history ):
 
       sums = [sum([M[x] for x in indices[y]]) for y in range(8)]
       if blockCondition in sums:  # win if there is another thing needing to be blocked!
-          M[ind] = 0;   # undo change to M
+          M[ind] = 0    # undo change to M
           M = [2 if x==4 else x for x in M]
           print('player ' + winPlayer + ' wins after' + makeString(history))
           myPrint(M)
@@ -198,5 +198,5 @@ def searchForWins( M, spotsFree, iMax, history ):
 
 
 # do it!
-searchForWins( M, spotsFree, iMaxStart, [])
+searchForWins( M, spotsFree, iMaxStart, [] )
 
