@@ -183,26 +183,3 @@ for location, result in zip(spotsFree,results):
   elif result==2:
     print( '  location', location+1, 'will allow you to force a win' )
 
-
-  elif all(l==1 or l==2 for l in list):
-    string = 'has '
-    if any(l==1 for l in list):
-      string += 'losses '
-    if any(l==2 for l in list):
-      if len(string) > 4:
-        string += 'and wins '
-      else:
-        string += 'wins '
-    print( '  location', i+1, string + 'possible' )
-  elif any(l==4 for l in list):
-    print( '  location', i+1, 'will force a win' )
-    if len(list) != 1:
-      print('huh!')
-  else:              # is it possible to have 3 and -1 or 0 ?
-    if any(l==-1 for l in list):
-      print( '  location', i+1, 'will allow your opponent to force a win with just one move' )
-    elif any(l==0 for l in list):
-      print( '  location', i+1, 'will allow your opponent to force a win' )
-    if any(l==3 for l in list):
-      print( '  location', i+1, 'will allow you to force a win' )
-
