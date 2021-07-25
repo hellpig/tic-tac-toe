@@ -18,9 +18,9 @@
 #   1 is for the first player
 #   2 is for the second player (temporarily called "4" in the code)
 
-start = [0,1,0,
-         0,0,0,
-         0,2,0]
+start = [2,2,1,
+         1,0,0,
+         0,1,0]
 
 
 
@@ -73,8 +73,9 @@ if 2 in sums or 8 in sums:
 #   3 if you can force a win in multiple moves
 #   4 if you will force a win
 # A player, in general, forces a win if all future moves lead to a win,
-#   and I think the function below checks for all POSSIBLE instances of this.
-#   That is, I don't think I need to compare different history[] lists.
+#   and I think the function below checks for MOST possible instances of this.
+#   I have experimentally verified that I need to compare different history[] lists.
+#   As the code currently is, the returned value is only approximate.
 def analyzeHistory(history):
 
   length = len(history)

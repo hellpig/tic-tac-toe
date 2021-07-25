@@ -33,7 +33,7 @@
 # If the computer is avoiding a couple types of situations,
 # it will avoid the worse situation more.
 #
-# I suppose you could set Greedy to -1 to have the computer do more random moves,
+# I suppose you could set Greedy to -1 to have the computer do even more random moves,
 # while still always completing any almost-complete line or blocking your
 # almost-complete line.
 
@@ -72,8 +72,10 @@ def myPrint(list):
 #   3 if you can force a win in multiple moves
 #   4 if you will force a win
 # A player, in general, forces a win if all future moves lead to a win,
-#   and I think the function below checks for all POSSIBLE instances of this.
-#   That is, I don't think I need to compare different history[] lists.
+#   and I think the function below checks for MOST possible instances of this.
+#   I have experimentally verified that I need to compare different history[] lists.
+#   As the code currently is, the returned value is only approximate.
+#   Because of this, you need Greedy==1 to make the AI unbeatable.
 def analyzeHistory(history):
 
   length = len(history)
@@ -176,6 +178,11 @@ myPrint(M)
 
 # each iteration is a move by human then computer
 while True:
+
+  # check for draw
+  if 0 not in M:
+    print("  Draw!")
+    break
 
   while True:
     ind = int(input("  Make your move (enter 1-9): ")) - 1
@@ -285,8 +292,4 @@ while True:
   myPrint(M)
   spotsFree.remove(ind)
 
-  # check for draw
-  if 0 not in M:
-    print("  Draw!")
-    break
 
