@@ -102,7 +102,7 @@ def analyzeMoves( M, spotsFree, step ):
       spotsFree.remove(ind)
 
       sums = [sum([M[x] for x in indices[y]]) for y in range(8)]
-      if blockCondition in sums:  # win if there is another thing needing to be blocked!
+      if blockCondition in sums:  # win or lose if there is another thing needing to be blocked!
 
           if oppenentTurn:
             v = 2  # won!
@@ -121,7 +121,7 @@ def analyzeMoves( M, spotsFree, step ):
 
   else:
 
-      list = [None]*len(spotsFree)
+      list = [0]*len(spotsFree)
       for i in range(len(spotsFree)):
 
           # I must make copies because you can't pass by value in Python
