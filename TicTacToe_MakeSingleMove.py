@@ -73,93 +73,96 @@ if 2 in sums or 8 in sums:
 #      2 for being able to force a win
 #      1 for being able to win if opponent isn't the best
 #      0 for pure draws
-#     -1 for being opponent being able to force a loss
-# These values go into results[] when step is 1
-def analyzeMoves( M, spotsFree, step ):
-  global results, counter
+#     -1 for opponent being able to force a loss
+# These values go into results[] when depth is 1
+def analyzeMoves( M, spotsFree, depth ):
+    global results, counter
 
-  # counter is for indexing results[]
-  if step == 1:
-    counter += 1
+    if depth & 1:   # if depth is odd
+      oppenentTurn = True    # note that depth starts at 0
+    else:
+      oppenentTurn = False
 
-  if step & 1:   # if step is odd
-    oppenentTurn = True    # note that step starts at 0
-  else:
-    oppenentTurn = False
+    # counter is for indexing results[]
+    if depth == 1:
+      counter += 1
 
-  if len(spotsFree) & 1:  # if len(spotsFree) is odd
-    newValue = 1    # place a 1 instead of a 4 on the tic-tac-toe board
-    blockCondition = 8  # if, let's say, sum(row) is 8, block
-  else:
-    newValue = 4
-    blockCondition = 2
+    if len(spotsFree) & 1:  # if len(spotsFree) is odd
+      newValue = 1    # place a 1 instead of a 4 on the tic-tac-toe board
+      blockCondition = 8  # if, let's say, sum(row) is 8, block
+    else:
+      newValue = 4
+      blockCondition = 2
 
-  # sums[i] is the sum of indices[i] of M
-  sums = [sum([M[x] for x in indices[y]]) for y in range(8)]
-  if blockCondition in sums:   # block
+    # sums[i] is the sum of indices[i] of M
+    sums = [sum([M[x] for x in indices[y]]) for y in range(8)]
 
-      type = sums.index(blockCondition)
-      ind = [x for x in indices[type] if M[x]==0][0]  # location to block
+    if blockCondition in sums:   # block
 
-      M[ind] = newValue
-      spotsFree.remove(ind)
+        type = sums.index(blockCondition)
+        ind = [x for x in indices[type] if M[x]==0][0]  # location to block
 
-      sums = [sum([M[x] for x in indices[y]]) for y in range(8)]
-      if blockCondition in sums:  # win or lose if there is another thing needing to be blocked!
+        M[ind] = newValue
+        spotsFree.remove(ind)
 
-          if oppenentTurn:
-            v = 2  # won!
-          else:
-            v = -1  # lost
+        sums = [sum([M[x] for x in indices[y]]) for y in range(8)]
 
-          if step == 1:
-            results[counter] = v
-          return v
+        if blockCondition in sums:  # win or lose if there is another thing needing to be blocked!
 
-      else:
-          v = analyzeMoves( M, spotsFree, step+1 )
-          if step == 1:
-            results[counter] = v
-          return v
+            if oppenentTurn:
+              v = 2  # won!
+            else:
+              v = -1  # lost
 
-  else:
+            if depth == 1:
+              results[counter] = v
+            return v
 
-      list = [0]*len(spotsFree)
-      for i in range(len(spotsFree)):
+        else:
+            v = analyzeMoves( M, spotsFree, depth+1 )
+            if depth == 1:
+              results[counter] = v
+            return v
 
-          # I must make copies because you can't pass by value in Python
-          M2 = M[:]
-          spotsFree2 = spotsFree[:]
+    else:
 
-          ii = spotsFree[i]  #the index of the piece to be added on new board
-          M2[ii] = newValue  #add piece to new board
-          del spotsFree2[i]  #update the new list of available moves
+        # call analyzeMoves() for each possible next move and create list[]
+        list = [0]*len(spotsFree)
+        for i in range(len(spotsFree)):
 
-          list[i] = analyzeMoves( M2, spotsFree2, step+1 )
+            # I must make copies because you can't pass by value in Python
+            M2 = M[:]
+            spotsFree2 = spotsFree[:]
 
-      # process list[] to find v; that is, combine multiple outputs of analyzeMoves()
-      if len(list)==0:
+            ii = spotsFree[i]  #the index of the piece to be added on new board
+            M2[ii] = newValue  #add piece to new board
+            del spotsFree2[i]  #update the new list of available moves
 
-          v = 0   # draw
+            list[i] = analyzeMoves( M2, spotsFree2, depth+1 )
 
-      elif oppenentTurn:
+        # process list[] to find v; that is, combine multiple outputs of analyzeMoves()
+        if len(list)==0:
+
+            v = 0   # draw
+
+        elif oppenentTurn:
           
-          if any(i==-1 for i in list):
-            v = -1
-          elif any(i==1 for i in list) or (any(i==0 for i in list) and any(i==2 for i in list)):
-            v = 1
-          else:
-            v = list[0]    # either all of list[] is 2 or all of list is 0
+            if any(i==-1 for i in list):
+              v = -1
+            elif any(i==1 for i in list) or (any(i==0 for i in list) and any(i==2 for i in list)):
+              v = 1
+            else:
+              v = list[0]    # either all of list[] is 2 or all of list is 0
 
-      else:
+        else:
 
-          # choose the highest situation in the list
-          v = max(list)
+            # choose the highest situation in the list
+            v = max(list)
 
-      # take care of results[] and return
-      if step == 1:
-        results[counter] = v
-      return v
+        # take care of results[] and return
+        if depth == 1:
+          results[counter] = v
+        return v
 
 
 
