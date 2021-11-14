@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.8
 #
 # Play Tic-tac-toe with the computer, but the computer will never let you win.
-# Runs in a terminal (on Windows, the Command Prompt).
+# Runs in a terminal (on Windows, PowerShell or the Command Prompt).
 #
 # The numbers for the locations are...
 #    1 2 3
